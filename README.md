@@ -95,6 +95,10 @@ Conceptual entities (future backend):
 ## ✔ Playwright Test Results
 ![Tests Passed](./screenshots/ss5.png)
 
+## Video Links- 
+The demo video is recorded at a slightly faster pace due to the time window available.
+Ui explaination- https://www.loom.com/share/90233044f64847bc9e51e62b67e985d3
+Testing implementation- https://www.loom.com/share/56d95e43e39243ebae1ee042dff454ce
 
 ## Performance Strategy
 
