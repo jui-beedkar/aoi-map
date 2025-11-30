@@ -12,12 +12,18 @@ export type AOI = {
   zoom: number;
 };
 
+export type DrawnPoint = {
+  id: string;
+  label: string;
+  position: [number, number];
+};
+
 type ToastState = {
   id: number;
   message: string;
 } | null;
 
-const STORAGE_KEY = "aoi-map-draft-v1";
+const STORAGE_KEY = "aoi-map-draft-v2";
 
 function App() {
   const [aois, setAois] = useState<AOI[]>([
@@ -48,9 +54,17 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isPublished, setIsPublished] = useState(false);
   const [nextId, setNextId] = useState(4);
+
+  // NEW: drawn AOI points
+  const [drawnPoints, setDrawnPoints] = useState<DrawnPoint[]>([]);
+
+  // NEW: layer visibility toggles
+  const [showBaseLayer, setShowBaseLayer] = useState(true);
+  const [showFeatures, setShowFeatures] = useState(true);
+
   const [toast, setToast] = useState<ToastState>(null);
 
-  
+  // Load draft from localStorage on first render
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -60,6 +74,9 @@ function App() {
         selectedAoiId: string | null;
         isPublished?: boolean;
         nextId?: number;
+        drawnPoints?: DrawnPoint[];
+        showBaseLayer?: boolean;
+        showFeatures?: boolean;
       };
 
       if (parsed.aois && Array.isArray(parsed.aois) && parsed.aois.length > 0) {
@@ -67,12 +84,15 @@ function App() {
         setSelectedAoiId(parsed.selectedAoiId ?? parsed.aois[0].id);
         setIsPublished(Boolean(parsed.isPublished));
         setNextId(parsed.nextId ?? parsed.aois.length + 1);
+        setDrawnPoints(parsed.drawnPoints ?? []);
+        setShowBaseLayer(parsed.showBaseLayer ?? true);
+        setShowFeatures(parsed.showFeatures ?? true);
         showToast("Loaded last saved draft from this browser.");
       }
     } catch {
-      
+      // ignore corrupted storage
     }
-    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const selectedAoi = useMemo(
@@ -91,11 +111,10 @@ function App() {
   }, [aois, searchQuery]);
 
   function showToast(message: string) {
-    setToast({ id: Date.now(), message });
+    const id = Date.now();
+    setToast({ id, message });
     setTimeout(() => {
-      setToast((current) =>
-        current && current.id === toast?.id ? null : current
-      );
+      setToast((current) => (current && current.id === id ? null : current));
     }, 2500);
   }
 
@@ -106,9 +125,12 @@ function App() {
         selectedAoiId,
         isPublished,
         nextId,
+        drawnPoints,
+        showBaseLayer,
+        showFeatures,
       };
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-      showToast("Draft saved locally in this browser.");
+      showToast("Draft (including drawn features) saved locally.");
     } catch {
       showToast("Unable to save draft (localStorage error).");
     }
@@ -152,7 +174,7 @@ function App() {
   function handleFocusSelectedAoi() {
     if (selectedAoi) {
       showToast(`Focusing map on ${selectedAoi.name}.`);
-      
+      // Map already reacts via selectedAoi prop; this toast is just feedback.
     }
   }
 
@@ -166,9 +188,22 @@ function App() {
     }
   }
 
+  // NEW: add a drawn point from map click
+  function handleAddDrawnPoint(lat: number, lng: number) {
+    const id = `pt-${Date.now()}`;
+    const label = `Point @ ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    const point: DrawnPoint = {
+      id,
+      label,
+      position: [lat, lng],
+    };
+    setDrawnPoints((prev) => [...prev, point]);
+    showToast("Point AOI added. It will be persisted when you save draft.");
+  }
+
   return (
     <div className="min-h-screen w-full bg-slate-950 text-slate-100">
-      {}
+      {/* subtle gradient background */}
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,#1e293b_0,#020617_55%)] opacity-70" />
 
       <div className="relative z-10 flex min-h-screen flex-col">
@@ -187,10 +222,20 @@ function App() {
             onSearchChange={setSearchQuery}
             onSelectAoi={setSelectedAoiId}
             onCreateAoi={handleCreateAoi}
+            showBaseLayer={showBaseLayer}
+            showFeatures={showFeatures}
+            onToggleBaseLayer={() => setShowBaseLayer((v) => !v)}
+            onToggleFeatures={() => setShowFeatures((v) => !v)}
           />
 
           <main className="flex-1 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-[0_0_40px_rgba(15,23,42,0.8)]">
-            <MapPanel selectedAoi={selectedAoi} />
+            <MapPanel
+              selectedAoi={selectedAoi}
+              drawnPoints={drawnPoints}
+              showBaseLayer={showBaseLayer}
+              showFeatures={showFeatures}
+              onAddDrawnPoint={handleAddDrawnPoint}
+            />
           </main>
 
           <RightPanel

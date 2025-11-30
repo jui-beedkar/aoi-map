@@ -2,12 +2,12 @@
 
 Single-page React + TypeScript application for creating and managing Areas of Interest (AOIs) on top of a WMS satellite imagery layer.
 
-## Stack
+## Tech Stack
 
-- React + TypeScript + Vite
-- Tailwind CSS
-- Leaflet + react-leaflet (map + WMS)
-- Playwright (end-to-end tests)
+- React + TypeScript + Vite - Core frontend + build setup
+- Tailwind CSS - UI styling + layout
+- Leaflet + react-leaflet - WMS mapping + overlay
+- Playwright - End-to-End automated testing
 
 ---
 
@@ -15,9 +15,9 @@ Single-page React + TypeScript application for creating and managing Areas of In
 
 I chose **Leaflet + react-leaflet** because:
 
-- Very mature ecosystem with good **WMS support** out of the box.
-- Easy React integration via `react-leaflet` with declarative components.
-- Lightweight and well-suited for 2D web maps without requiring WebGL.
+- It is Very mature ecosystem with good **WMS support** out of the box.
+- It has Easy React integration via `react-leaflet` with declarative    components.
+- It is Lightweight and well-suited for 2D web maps without requiring WebGL.
 
 Alternatives considered:
 
@@ -84,16 +84,25 @@ Conceptual entities (future backend):
 ---
 
 ## Application UI Preview
-![UI Screenshot1](./screenshots/ss2.png)
-![UI Screenshot2](./screenshots/ss3.png)
-![UI Screenshot3](./screenshots/ss4.png)
+![UI Screenshot1](./screenshots/map1.png)
+![UI Screenshot2](./screenshots/map2.png)
+![UI Screenshot3](./screenshots/map3.png)
 
 
 ## AOI Selection + Map Movement
-![AOI Interaction](./screenshots/ss1.png)
+![AOI Interaction](./screenshots/map4.png)
 
 ## ✔ Playwright Test Results
 ![Tests Passed](./screenshots/ss5.png)
+
+
+## Performance Strategy
+
+**Scaling Feature**                        **Status**
+Debounced move events	               reduces unnecessary map refresh load
+On-demand layer toggling	           avoids continuous rendering
+Clustering for 1000+ markers	       ready for upgrade
+Vector tiles as future layer source	 documented roadmap
 
 ## API Documentation (future/backend design)
 

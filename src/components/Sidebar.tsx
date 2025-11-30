@@ -7,6 +7,10 @@ type SidebarProps = {
   onSearchChange: (value: string) => void;
   onSelectAoi: (id: string) => void;
   onCreateAoi: () => void;
+  showBaseLayer: boolean;
+  showFeatures: boolean;
+  onToggleBaseLayer: () => void;
+  onToggleFeatures: () => void;
 };
 
 export function Sidebar({
@@ -16,6 +20,10 @@ export function Sidebar({
   onSearchChange,
   onSelectAoi,
   onCreateAoi,
+  showBaseLayer,
+  showFeatures,
+  onToggleBaseLayer,
+  onToggleFeatures,
 }: SidebarProps) {
   const total = aois.length;
 
@@ -56,6 +64,32 @@ export function Sidebar({
         </div>
       </div>
 
+      {/* Layer management */}
+      <div className="mb-3 rounded-xl border border-slate-800 bg-slate-900/80 p-2 text-[11px]">
+        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+          Layers
+        </p>
+        <label className="flex items-center gap-2 text-slate-200">
+          <input
+            type="checkbox"
+            checked={showBaseLayer}
+            onChange={onToggleBaseLayer}
+            className="h-3 w-3 rounded border-slate-600 bg-slate-900 text-sky-500"
+          />
+          <span>Base WMS Orthophoto</span>
+        </label>
+        <label className="mt-1 flex items-center gap-2 text-slate-200">
+          <input
+            type="checkbox"
+            checked={showFeatures}
+            onChange={onToggleFeatures}
+            className="h-3 w-3 rounded border-slate-600 bg-slate-900 text-sky-500"
+          />
+          <span>Drawn AOI points</span>
+        </label>
+      </div>
+
+      {/* AOI list */}
       <div className="scrollbar-thin flex-1 space-y-2 overflow-y-auto pr-1">
         {aois.length === 0 && (
           <div className="rounded-xl border border-dashed border-slate-700 bg-slate-900/70 p-3 text-[11px] text-slate-400">
